@@ -15,7 +15,7 @@ ARG HTTPS_PROXY
 
 
 ENV releasever=8.2 \
-    NO_PROXY=tpavcpsat.vici.verizon.com
+    NO_PROXY=satellite.example.com
 
 RUN echo $releasever > /etc/yum/vars/releasever && \
     rm -f /etc/yum.repos.d/ubi.repo && \
