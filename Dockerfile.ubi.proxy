@@ -1,0 +1,51 @@
+FROM registry.access.redhat.com/ubi8/ubi
+
+#Build with:
+# export HTTPS_PROXY=http://10.20.30.40:80
+# podman build -t net-toolbox:latest --no-cache --build-arg=HTTPS_PROXY=http://10.20.30.40:80 -f Dockerfile.ubi.proxy
+# unset HTTPS_PROXY
+
+# NOTE: If using plotnetcfg - https://access.redhat.com/solutions/3004681
+#RUN dnf install --setopt=tsflags=nodocs -y \
+#   https://mirror.dal.nexril.net/fedora-epel/7/x86_64/Packages/p/plotnetcfg-0.4.1-2.el7.x86_64.rpm graphviz
+
+
+# use --build-arg=HTTPS_PROXY=http://<IP>:<port> to define your proxy when running podman build
+ARG HTTPS_PROXY
+
+
+ENV releasever=8.2 \
+    NO_PROXY=tpavcpsat.vici.verizon.com
+
+RUN echo $releasever > /etc/yum/vars/releasever && \
+    rm -f /etc/yum.repos.d/ubi.repo && \
+    dnf config-manager --set-disabled '*' && \
+    dnf config-manager \
+        --set-enabled rhel-8-for-x86_64-baseos-eus-rpms \
+        --set-enabled rhel-8-for-x86_64-appstream-eus-rpms \
+        --set-enabled ansible-2.9-for-rhel-8-x86_64-rpms \
+        --set-enabled openstack-16.1-for-rhel-8-x86_64-rpms && \
+    dnf -v -y makecache
+
+# NOTE: Using the UBI image with some of these packages requires
+# building on a RHEL node with valid subscriptions
+RUN dnf clean all && dnf install -vv --setopt=tsflags=nodocs -y \
+    iproute bind-utils iputils iperf3 lksctp-tools net-tools procps \
+    mtr tcpdump traceroute less tree nginx \
+    qperf git iputils nmap \
+    wget curl iperf3 iproute ethtool \
+    telnet ftp rsync socat httpd-tools mysql postgresql jq python36 && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+RUN dnf localinstall -y https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/u/uperf-1.0.7-1.el8.x86_64.rpm
+
+RUN pip3 install yq
+
+#tcpflow
+
+LABEL   io.k8s.display-name="Network Tools" \
+        io.k8s.description="Container with networking tools for tests" \
+        io.openshift.tags="nettools"
+
+ENTRYPOINT /bin/bash -c "sleep infinity"

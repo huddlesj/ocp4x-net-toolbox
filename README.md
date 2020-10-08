@@ -1,12 +1,22 @@
 # Building the container
 
 - Build demo container
+
+
 ```
 podman build -t bastion.example.com:5000/poc/net-toolbox -f Dockerfile.ubi
 
-or
+for a build behind a proxy use
+
+export HTTPS_PROXY=http://10.20.30.40:80
+podman build -t net-toolbox:latest --no-cache --build-arg=HTTPS_PROXY=http://10.20.30.40:80 -f Dockerfile.ubi.proxy
+unset HTTPS_PROXY
+
+or for a Fedora build
 
 podman build -t bastion.example.com:5000/poc/net-toolbox -f Dockerfile.fedora
+
+
 ```
 
 # Testing Multus in OCP4.1
