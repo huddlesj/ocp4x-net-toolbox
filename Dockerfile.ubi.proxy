@@ -32,7 +32,7 @@ RUN echo $releasever > /etc/yum/vars/releasever && \
 RUN dnf clean all && dnf install -vv --setopt=tsflags=nodocs -y \
     iproute bind-utils iputils iperf3 lksctp-tools net-tools procps \
     mtr tcpdump traceroute less tree nginx \
-    qperf git iputils nmap \
+    qperf git iputils nmap nmap-ncat \
     wget curl iperf3 iproute ethtool \
     telnet ftp rsync socat httpd-tools mysql postgresql jq python36 && \
     dnf clean all && \
